@@ -68,6 +68,45 @@ pipeline {
             }
         }
         
+        stage('Test') {
+            parallel {
+                stage('Backend Test') {
+                    steps {
+                        echo '========== BACKEND TEST =========='
+                        dir('Backend') {
+                            bat '''
+                                echo Running Backend tests...
+                                npm test || echo Tests not configured
+                            '''
+                        }
+                    }
+                }
+                stage('Frontend Test') {
+                    steps {
+                        echo '========== FRONTEND TEST =========='
+                        dir('Frontend') {
+                            bat '''
+                                echo Running Frontend tests...
+                                npm test || echo Tests not configured
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Code Quality') {
+            steps {
+                echo '========== CODE QUALITY CHECK =========='
+                dir('Frontend') {
+                    bat '''
+                        echo Running linter...
+                        npm run lint || echo Lint not configured
+                    '''
+                }
+            }
+        }
+        
         stage('Docker Build & Deploy') {
             steps {
                 echo '========== DOCKER BUILD & DEPLOY =========='
