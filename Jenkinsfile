@@ -151,7 +151,6 @@ pipeline {
     post {
         always {
             echo '========== PIPELINE FINISHED =========='
-            cleanWs()
         }
         
         success {
