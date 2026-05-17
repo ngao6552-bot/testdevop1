@@ -8,7 +8,7 @@ pipeline {
     }
     
     environment {
-        NODE_ENV = 'production'
+        NODE_ENV = 'development'
     }
     
     stages {
@@ -48,7 +48,7 @@ pipeline {
                         echo '========== BACKEND BUILD =========='
                         dir('Backend') {
                             bat '''
-                                npm install --legacy-peer-deps
+                                npm install --legacy-peer-deps --save-dev jest
                                 npm run build || echo Build skipped
                             '''
                         }
@@ -59,7 +59,7 @@ pipeline {
                         echo '========== FRONTEND BUILD =========='
                         dir('Frontend') {
                             bat '''
-                                npm install
+                                npm install --save-dev vitest
                                 npm run build
                             '''
                         }
