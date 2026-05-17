@@ -16,7 +16,7 @@ pipeline {
             steps {
                 echo '========== CHECKOUT CODE =========='
                 checkout scm
-                sh 'git log --oneline -n 3'
+                bat 'git log --oneline -n 3'
             }
         }
         
@@ -26,7 +26,7 @@ pipeline {
                     steps {
                         echo '========== BACKEND INSTALL =========='
                         dir('Backend') {
-                            sh 'npm install --legacy-peer-deps'
+                            bat 'npm install --legacy-peer-deps'
                         }
                     }
                 }
@@ -34,7 +34,7 @@ pipeline {
                     steps {
                         echo '========== FRONTEND INSTALL =========='
                         dir('Frontend') {
-                            sh 'npm install'
+                            bat 'npm install'
                         }
                     }
                 }
@@ -47,7 +47,7 @@ pipeline {
                     steps {
                         echo '========== BACKEND BUILD =========='
                         dir('Backend') {
-                            sh 'npm run build || true'
+                            bat 'npm run build || echo Build skipped'
                         }
                     }
                 }
@@ -55,7 +55,7 @@ pipeline {
                     steps {
                         echo '========== FRONTEND BUILD =========='
                         dir('Frontend') {
-                            sh 'npm run build'
+                            bat 'npm run build'
                         }
                     }
                 }
@@ -65,10 +65,10 @@ pipeline {
         stage('Docker Build & Deploy') {
             steps {
                 echo '========== DOCKER BUILD & DEPLOY =========='
-                sh '''
-                    docker-compose down || true
+                bat '''
+                    docker-compose down || echo Containers stopped
                     docker-compose up -d
-                    sleep 5
+                    timeout /t 5
                     docker ps
                 '''
             }
@@ -77,11 +77,11 @@ pipeline {
         stage('Health Check') {
             steps {
                 echo '========== HEALTH CHECK =========='
-                sh '''
-                    echo "Checking services..."
-                    curl -s http://localhost:5000/ || echo "Backend check failed"
-                    curl -s http://localhost/ || echo "Frontend check failed"
-                    echo "✓ Done"
+                bat '''
+                    echo Checking services...
+                    curl -s http://localhost:5000/ || echo Backend check failed
+                    curl -s http://localhost/ || echo Frontend check failed
+                    echo Done
                 '''
             }
         }
