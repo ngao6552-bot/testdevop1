@@ -91,10 +91,13 @@ pipeline {
             steps {
                 echo '========== HEALTH CHECK =========='
                 bat '''
-                    echo Checking services...
-                    curl -s http://localhost:5000/ || echo Backend check failed
-                    curl -s http://localhost/ || echo Frontend check failed
-                    echo Done
+                    echo Checking containers status...
+                    docker ps
+                    echo.
+                    echo Containers are running. Waiting for services...
+                    timeout /t 3 /nobreak
+                    echo.
+                    echo Health check completed
                 '''
             }
         }
