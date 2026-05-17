@@ -9,8 +9,6 @@ pipeline {
     
     environment {
         NODE_ENV = 'production'
-        NODEJS_HOME = tool 'NodeJS'
-        PATH = "${NODEJS_HOME}/bin:${PATH}"
     }
     
     stages {
