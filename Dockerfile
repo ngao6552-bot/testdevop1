@@ -2,20 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Build Backend
-COPY Backend/package*.json ./Backend/
-RUN cd Backend && npm install --production
+# Copy package files
+COPY package*.json ./
 
-# Build Frontend
-COPY Frontend/package*.json ./Frontend/
-RUN cd Frontend && npm install && npm run build
+# Install dependencies
+RUN npm install --production
 
 # Copy source code
-COPY Backend /app/Backend
-COPY Frontend /app/Frontend
+COPY . .
 
 # Expose port
 EXPOSE 5000
 
-# Start Backend server
-CMD ["node", "Backend/server.js"]
+# Start server
+CMD ["npm", "start"]

@@ -72,9 +72,16 @@ pipeline {
             steps {
                 echo '========== DOCKER BUILD & DEPLOY =========='
                 bat '''
+                    echo Stopping containers...
                     docker-compose down || echo Containers stopped
+                    
+                    echo Building and starting services...
                     docker-compose up -d
-                    timeout /t 5
+                    
+                    echo Waiting for services to be ready...
+                    timeout /t 3 /nobreak
+                    
+                    echo Services status:
                     docker ps
                 '''
             }
