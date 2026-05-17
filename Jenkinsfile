@@ -76,7 +76,7 @@ pipeline {
                         dir('Backend') {
                             bat '''
                                 echo Running Backend tests...
-                                npm test || echo Tests not configured
+                                npm test
                             '''
                         }
                     }
@@ -87,7 +87,7 @@ pipeline {
                         dir('Frontend') {
                             bat '''
                                 echo Running Frontend tests...
-                                npm test || echo Tests not configured
+                                npm test
                             '''
                         }
                     }
@@ -107,9 +107,9 @@ pipeline {
             }
         }
         
-        stage('Docker Build & Deploy') {
+        stage('Deploy') {
             steps {
-                echo '========== DOCKER BUILD & DEPLOY =========='
+                echo '========== DEPLOY - DOCKER BUILD & START SERVICES =========='
                 bat '''
                     echo Stopping old containers...
                     docker-compose down || echo No containers to stop
@@ -119,8 +119,8 @@ pipeline {
                     docker-compose up -d
                     
                     echo.
-                    echo Services starting, waiting 5 seconds...
-                    ping -n 6 127.0.0.1 >nul
+                    echo Services starting, waiting 10 seconds for containers to be ready...
+                    ping -n 11 127.0.0.1 >nul
                     
                     echo.
                     echo Current Docker containers:
@@ -135,15 +135,26 @@ pipeline {
         
         stage('Health Check') {
             steps {
-                echo '========== HEALTH CHECK =========='
+                echo '========== HEALTH CHECK - VERIFY DEPLOYMENT =========='
                 bat '''
-                    echo Checking Docker containers...
+                    echo.
+                    echo [1] Checking Docker containers running...
                     docker ps
                     echo.
-                    echo Docker images available:
+                    
+                    echo [2] Testing Backend API health at http://localhost:5000...
+                    powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:5000' -UseBasicParsing -TimeoutSec 5; Write-Host 'Backend is running - Status: ' $response.StatusCode } catch { Write-Host 'ERROR: Backend not responding' -ForegroundColor Red; exit 1 }"
+                    echo.
+                    
+                    echo [3] Testing Frontend health at http://localhost...
+                    powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost' -UseBasicParsing -TimeoutSec 5; Write-Host 'Frontend is running - Status: ' $response.StatusCode } catch { Write-Host 'ERROR: Frontend not responding' -ForegroundColor Red; exit 1 }"
+                    echo.
+                    
+                    echo [4] Docker images available:
                     docker images
                     echo.
-                    echo Health check completed successfully
+                    
+                    echo [PASSED] All health checks completed successfully! Deployment verified.
                 '''
             }
         }
