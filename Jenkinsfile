@@ -47,7 +47,10 @@ pipeline {
                     steps {
                         echo '========== BACKEND BUILD =========='
                         dir('Backend') {
-                            bat 'npm run build || echo Build skipped'
+                            bat '''
+                                npm install --legacy-peer-deps
+                                npm run build || echo Build skipped
+                            '''
                         }
                     }
                 }
@@ -55,7 +58,10 @@ pipeline {
                     steps {
                         echo '========== FRONTEND BUILD =========='
                         dir('Frontend') {
-                            bat 'npm run build'
+                            bat '''
+                                npm install
+                                npm run build
+                            '''
                         }
                     }
                 }
