@@ -72,17 +72,24 @@ pipeline {
             steps {
                 echo '========== DOCKER BUILD & DEPLOY =========='
                 bat '''
-                    echo Stopping containers...
-                    docker-compose down || echo Containers stopped
+                    echo Stopping old containers...
+                    docker-compose down || echo No containers to stop
                     
+                    echo.
                     echo Building and starting services...
                     docker-compose up -d
                     
-                    echo Waiting for services to be ready...
-                    timeout /t 3 /nobreak
+                    echo.
+                    echo Services starting, waiting 5 seconds...
+                    ping -n 6 127.0.0.1 >nul
                     
-                    echo Services status:
-                    docker ps
+                    echo.
+                    echo Current Docker containers:
+                    docker ps -a
+                    
+                    echo.
+                    echo Docker logs:
+                    docker-compose logs
                 '''
             }
         }
@@ -91,13 +98,13 @@ pipeline {
             steps {
                 echo '========== HEALTH CHECK =========='
                 bat '''
-                    echo Checking containers status...
+                    echo Checking Docker containers...
                     docker ps
                     echo.
-                    echo Containers are running. Waiting for services...
-                    timeout /t 3 /nobreak
+                    echo Docker images available:
+                    docker images
                     echo.
-                    echo Health check completed
+                    echo Health check completed successfully
                 '''
             }
         }
